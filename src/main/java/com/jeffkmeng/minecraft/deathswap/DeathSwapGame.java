@@ -154,7 +154,7 @@ public class DeathSwapGame {
                         time --;
                         s.setScore(time);
                         if (time % 60 == 0) {
-                            Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in " + (time/60) + " minute" + (time == 60 ? "" : "s" + "...");
+                            Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in " + (time/60) + " minute" + (time == 60 ? "" : "s") + "...";
                         }
                         if (time == 10) {
                             Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in 10 seconds...");
