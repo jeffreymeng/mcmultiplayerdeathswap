@@ -4,7 +4,7 @@ main: com.jeffkmeng.minecraft.deathswap.DeathSwap
 commands:
   deathswap:
     description: Manage the death swap game
-    usage: /deathswap <action> [parameters...]
+    usage: "for usage info: /deathswap help"
     permission: deathswap.manage
 permissions:
   deathswap.manage:

@@ -13,6 +13,8 @@ public class DeathSwap extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DeathListener(game), this);
         getLogger().info("Death swap game ready. '/deathswap players addAll' then '/deathswap start' to start, '/deathswap help' for more info.");
         this.getCommand("deathswap")
+                .setTabCompleter(new DeathSwapTabCompleter());
+        this.getCommand("deathswap")
                 .setExecutor(new DeathSwapCommand(game));
 
     }

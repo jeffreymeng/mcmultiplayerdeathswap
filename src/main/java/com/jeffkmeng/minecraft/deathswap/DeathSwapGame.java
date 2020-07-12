@@ -78,7 +78,7 @@ public class DeathSwapGame {
     }
 
     public boolean onCommand(CommandSender sender, String[] args) {
-        String action = args[0];
+        String action = args[0].toLowerCase();
         switch (action) {
             case "help":
                 sender.sendMessage("List of avaliable deathswap commands:");
@@ -87,23 +87,22 @@ public class DeathSwapGame {
                 sender.sendMessage(ChatColor.RED +  "/deathswap swap" + ChatColor.GRAY + ": swap instantly (within 1 second) if the game has been started");
                 sender.sendMessage(ChatColor.RED +  "/deathswap start" + ChatColor.GRAY + ": start death swap");
                 sender.sendMessage(ChatColor.RED +  "/deathswap stop" + ChatColor.GRAY + ": stop death swap");
-                sender.sendMessage(ChatColor.RED +  "/deathswap players add <playerName>" + ChatColor.GRAY + ": add a player");
-                sender.sendMessage(ChatColor.RED +  "/deathswap players addAll" + ChatColor.GRAY + ": add all players that are online, and remove all offline players");
-                sender.sendMessage(ChatColor.RED +  "/deathswap players list" + ChatColor.GRAY + ": list all players");
+                sender.sendMessage(ChatColor.RED +  "/deathswap players addAll" + ChatColor.GRAY + ": add all online players to the death swap game");
+                sender.sendMessage(ChatColor.RED +  "/deathswap players help" + ChatColor.GRAY + ": display help menu for editing the players list.");
                 return true;
             case "timer":
                 if (args[1] == "set") {
                     this.swapTime = Integer.parseInt(args[2]);
                     return true;
                 }
-                return false;
+                return true;
             case "swap":
                 this.time = 0;
                 return true;
             case "start":
                 if (players.size() < 2) {
                     sendErr(sender, "Must have at least two players to start.");
-                    return false;
+                    return true;
                 }
                 this.active = true;
                 ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
@@ -190,31 +189,60 @@ public class DeathSwapGame {
                 sender.sendMessage("Stopped Plugin");
                 return true;
             case "players":
-                String subAction = args[1];
+                String subAction = args[1].toLowerCase();
                 switch (subAction) {
+                    case "help":
+                        sender.sendMessage("Avaliable player commands (note: edits to the player list will not take effect until the next time /deathswap start is called");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players help" + ChatColor.GRAY + ": display this help menu");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players add <playerName>" + ChatColor.GRAY + ": add a player");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players addAll" + ChatColor.GRAY + ": add all players that are online, and remove all offline players");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players remove <playerName>" + ChatColor.GRAY + ": remove a player");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players removeAll" + ChatColor.GRAY + ": remove all players from the list");
+                        sender.sendMessage(ChatColor.RED +  "/deathswap players list" + ChatColor.GRAY + ": list all players");
                     case "add":
                         if (args.length > 2) {
                             if (Bukkit.getPlayer(args[2]) == null) {
+                                if (args[2].equalsIgnoreCase("all")) {
+                                    sendErr(sender, "No player with username 'all' could be found online. Did you mean to add all online players with "
+                                            + ChatColor.GRAY + "/deathswap players addAll" + ChatColor.RED + " (no space)?");
+                                    return true;
+                                }
                                 sendErr(sender, "That player could not be found (are they online?)");
-                                return false;
+                                return true;
                             }
                             this.players.add(Bukkit.getPlayer(args[2]));
                             sender.sendMessage("Added " + args[2] + " to the game");
                             return true;
                         } else {
-                            if (sender instanceof Player)  {
-                                this.players.add((Player) sender);
-                                sender.sendMessage("Added " + ((Player) sender).getDisplayName() + " to the game.");
+
+                                sendErr(sender, "No player to add was specified. Use /deathswap players addAll to add all players");
                                 return true;
-                            } else {
-                                sendErr(sender, "The command " +  ChatColor.RED + "/deathswap add" + ChatColor.GRAY +  " with no additional arguments can " +
-                                        "only be called as a player, because it adds the current player.");
-                                return false;
-                            }
+
                         }
-                    case "addAll":
+                    case "addall":
                         this.players = new ArrayList<>(Bukkit.getServer().getOnlinePlayers());
                         sender.sendMessage("Added all online players to the game.");
+                        return true;
+                    case "remove":
+                        int oldLength = this.players.size();
+                        this.players.removeIf(p -> {
+                            return p.getDisplayName().equalsIgnoreCase(args[2]);
+                        });
+                        if (oldLength != this.players.size()) {
+                            sender.sendMessage("Removed " + args[2] + " from the players list.");
+                            return true;
+                        } else {
+                            if (args[2].equalsIgnoreCase("all")) {
+                                sendErr(sender, "No player with username 'all' could be found on  the list. Did you mean to remove all the players with "
+                                        + ChatColor.GRAY + "/deathswap players removeAll" + ChatColor.RED + " (no space)?");
+                                return true;
+                            }
+                            sendErr(sender, "Unable to remove " + args[2] + " from the players list (are you sure they are on the list? use /deathswap players list to check");
+                            return true;
+                        }
+                    case "removeall":
+                        this.players = new ArrayList<Player>();
+                        sender.sendMessage("Removed all players from the players list.");
                         return true;
                     case "list":
                         StringBuilder names = new StringBuilder("The current game has " + players.size() + " player" + (players.size() == 1 ? "" : "s") + ": ");
