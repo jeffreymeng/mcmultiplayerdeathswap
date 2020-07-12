@@ -20,7 +20,7 @@ public class DeathSwapGame {
     // if odd size: the last three target in a circle, rest is same as normal
     String[] targets;
     String[] oldTargets;
-    boolean[] diedThisRound; // parallel to oldTargets. Ensures that dying twice in the same round doesn't grant two points.
+    boolean[] gotPointThisRound; // parallel to oldTargets. Ensures that dying twice in the same round doesn't grant two points.
 
     // one per player
     ArrayList<Team> scoreboardTeams;
@@ -57,6 +57,10 @@ public class DeathSwapGame {
         String name = event.getEntity().getName();
         for (int i = 0; i < oldTargets.length; i ++) {
             if (oldTargets[i].equals(name)) {
+                if (gotPointThisRound[i]) {
+                    return;
+                }
+                gotPointThisRound[i] = true;
                 String targeter;
                 if (oldTargets.length % 2 == 1 && i == oldTargets.length - 3) {
                     targeter = oldTargets[oldTargets.length - 1];
@@ -167,7 +171,9 @@ public class DeathSwapGame {
                             oldTargets = new String[targets.length];
                             for (int i = 0; i < targets.length; i ++) {
                                 oldTargets[i] = targets[i];
+                                gotPointThisRound[i] = false;
                             }
+
                             for (int i = 0; i < targets.length; i +=  2) {
                                 // this could definitely be more efficient lol
 
@@ -197,7 +203,6 @@ public class DeathSwapGame {
                                     Location LC = C.getLocation();
 
                                     B.teleport(LA);
-                                    // TODO: add chunk loading if it works
                                     C.teleport(LB);
                                     A.teleport(LC);
                                     break;
@@ -218,13 +223,13 @@ public class DeathSwapGame {
                                 Location LA = A.getLocation();
                                 Location LB = B.getLocation();
                                 A.teleport(LB);
-                                if(!LB.getChunk().isLoaded()) {
-                                    Bukkit.broadcastMessage("[DEBUG]: reloading unloaded chunks");
-                                    LB.getChunk().load(true);
-                                }
-                                if(!LB.getChunk().isLoaded()) {
-                                    Bukkit.broadcastMessage("[DEBUG]: Chunk still not loaded!");
-                                }
+//                                if(!LB.getChunk().isLoaded()) {
+//                                    Bukkit.broadcastMessage("[DEBUG]: reloading unloaded chunks");
+//                                    LB.getChunk().load(true);
+//                                }
+//                                if(!LB.getChunk().isLoaded()) {
+//                                    Bukkit.broadcastMessage("[DEBUG]: Chunk still not loaded!");
+//                                }
 
                                 B.teleport(LA);
                             }
