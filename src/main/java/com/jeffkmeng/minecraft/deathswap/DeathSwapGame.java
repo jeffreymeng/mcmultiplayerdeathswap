@@ -20,6 +20,7 @@ public class DeathSwapGame {
     // if odd size: the last three target in a circle, rest is same as normal
     String[] targets;
     String[] oldTargets;
+    boolean[] diedThisRound; // parallel to oldTargets. Ensures that dying twice in the same round doesn't grant two points.
 
     // one per player
     ArrayList<Team> scoreboardTeams;
@@ -40,6 +41,7 @@ public class DeathSwapGame {
     public DeathSwapGame(Plugin plugin, Server server) {
         this.players = new ArrayList<>();
         this.swapTime = 60 * 5;
+        this.time = this.swapTime;
         this.active = false;
         this.server = server;
         this.plugin = plugin;
@@ -95,13 +97,18 @@ public class DeathSwapGame {
                 sender.sendMessage(ChatColor.RED +  "/deathswap players help" + ChatColor.GRAY + ": display help menu for editing the players list.");
                 return true;
             case "timer":
-                if (args[1] == "set") {
+                if (args[1].equals("set")) {
+                    sender.sendMessage("Set round length to " + args[2] + " seconds.");
                     this.swapTime = Integer.parseInt(args[2]);
+                    if (this.time > this.swapTime) {
+                        this.time = this.swapTime;
+                    }
                     return true;
                 }
-                return true;
             case "swap":
-                this.time = 0;
+
+                this.time = 11;
+                objective.getScore("timer").setScore(11);
                 return true;
             case "start":
                 if (players.size() < 2) {
@@ -145,9 +152,19 @@ public class DeathSwapGame {
                     public void run() {
                         Score s = objective.getScore("timer");
                         time --;
-
-                        if (time < 0) {
+                        s.setScore(time);
+                        if (time % 60 == 0) {
+                            Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in " + (time/60) + " minute" + (time == 60 ? "" : "s" + "...");
+                        }
+                        if (time == 10) {
+                            Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in 10 seconds...");
+                        }
+                        if (time > 0 && time < 4) {
+                            Bukkit.broadcastMessage(ChatColor.GOLD + "Swapping in " + time + " seconds...");
+                        }
+                        if (time <= 0) {
                             time = swapTime;
+                            oldTargets = new String[targets.length];
                             for (int i = 0; i < targets.length; i ++) {
                                 oldTargets[i] = targets[i];
                             }
@@ -161,17 +178,20 @@ public class DeathSwapGame {
                                     Player B = Bukkit.getPlayer(targets[targets.length - 2]);
                                     Player C = Bukkit.getPlayer(targets[targets.length - 1]);
                                     if (A == null || !A.isOnline()) {
-                                        B.sendMessage("You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 2] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
+                                        if (B != null)
+                                            B.sendMessage(ChatColor.GRAY + "You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 2] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
                                     }
                                     assert A != null;
                                     Location LA = A.getLocation();
                                     if (B == null || !B.isOnline()) {
-                                        C.sendMessage("You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 1] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
+                                        if (C != null)
+                                            C.sendMessage(ChatColor.GRAY + "You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 1] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
                                     }
                                     assert B != null;
                                     Location LB = B.getLocation();
                                     if (C == null || !C.isOnline()) {
-                                        A.sendMessage("You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 3] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
+                                        if (A != null)
+                                            A.sendMessage(ChatColor.GRAY + "You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[targets.length - 3] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
                                     }
                                     assert C != null;
                                     Location LC = C.getLocation();
@@ -185,10 +205,12 @@ public class DeathSwapGame {
                                 Player A = Bukkit.getPlayer(targets[i]);
                                 Player B = Bukkit.getPlayer(targets[i + 1]);
                                 if (A == null || !A.isOnline()) {
-                                    B.sendMessage("You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[i] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
+                                    if (B != null)
+                                        B.sendMessage(ChatColor.GRAY + "You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[i] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
                                 }
                                 if (B == null || !B.isOnline()) {
-                                    A.sendMessage("You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[i + 1] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
+                                    if (A != null)
+                                        A.sendMessage(ChatColor.GRAY + "You will not be teleported because your opponent for this round could not be found online. Ask an operator to do " + ChatColor.RED + "/deathswap remove " + targets[i + 1] + ChatColor.GRAY + " to remove them from this game and prevent this from happening again.");
 
                                 }
                                 assert A != null;
@@ -197,12 +219,11 @@ public class DeathSwapGame {
                                 Location LB = B.getLocation();
                                 A.teleport(LB);
                                 if(!LB.getChunk().isLoaded()) {
-                                    // TODO: remove
-                                    plugin.getLogger().info("[DEBUG]: reloading unloaded chunks");
+                                    Bukkit.broadcastMessage("[DEBUG]: reloading unloaded chunks");
                                     LB.getChunk().load(true);
                                 }
                                 if(!LB.getChunk().isLoaded()) {
-                                    plugin.getLogger().info("[DEBUG]: Chunk still not loaded!");
+                                    Bukkit.broadcastMessage("[DEBUG]: Chunk still not loaded!");
                                 }
 
                                 B.teleport(LA);
@@ -210,7 +231,7 @@ public class DeathSwapGame {
                             targets = assignTargets(players);
 
                         }
-                        s.setScore(time);
+
 
                     }
                 }, 0L, 20L);

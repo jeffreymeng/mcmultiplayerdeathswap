@@ -27,6 +27,7 @@ public class DeathSwapTabCompleter implements TabCompleter {
                 cmds.add("players");
                 cmds.add("stop");
                 cmds.add("timer");
+                cmds.add("swap");
                 return StringUtil.copyPartialMatches(args[0], cmds, new ArrayList<String>());
 
             case 2:
@@ -44,7 +45,7 @@ public class DeathSwapTabCompleter implements TabCompleter {
                         return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<String>());
                 }
             case 3:
-                if (args[0].toLowerCase() == "players") {
+                if (args[0].toLowerCase().equals("players")) {
                     switch(args[1].toLowerCase()) {
                         case "add":
                         case "remove":
