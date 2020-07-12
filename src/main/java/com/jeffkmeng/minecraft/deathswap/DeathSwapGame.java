@@ -34,9 +34,7 @@ public class DeathSwapGame {
 
     int time;
 
-    public String[] getTargets() {
-        return this.targets;
-    }
+
 
     public DeathSwapGame(Plugin plugin, Server server) {
         this.players = new ArrayList<>();
@@ -53,7 +51,7 @@ public class DeathSwapGame {
 
     public void handleDeath(String name) {
         for (int i = 0; i < oldTargets.length; i ++) {
-            if (oldTargets[i] == name) {
+            if (oldTargets[i].equals(name)) {
                 String targeter;
                 if (oldTargets.length % 2 == 1 && i == oldTargets.length - 3) {
                     targeter = oldTargets[oldTargets.length - 1];
@@ -85,6 +83,8 @@ public class DeathSwapGame {
             case "help":
                 sender.sendMessage("List of avaliable deathswap commands:");
                 sender.sendMessage(ChatColor.RED +  "/deathswap help" + ChatColor.GRAY + ": show this help menu");
+                sender.sendMessage(ChatColor.RED +  "/deathswap timer set [seconds]" + ChatColor.GRAY + ": set the number of seconds per round (default 300)");
+                sender.sendMessage(ChatColor.RED +  "/deathswap swap" + ChatColor.GRAY + ": swap instantly (within 1 second) if the game has been started");
                 sender.sendMessage(ChatColor.RED +  "/deathswap start" + ChatColor.GRAY + ": start death swap");
                 sender.sendMessage(ChatColor.RED +  "/deathswap stop" + ChatColor.GRAY + ": stop death swap");
                 sender.sendMessage(ChatColor.RED +  "/deathswap players add <playerName>" + ChatColor.GRAY + ": add a player");
@@ -93,10 +93,18 @@ public class DeathSwapGame {
                 return true;
             case "timer":
                 if (args[1] == "set") {
-                    objective.getScore("timer").setScore(Integer.parseInt(args[2]));
+                    this.swapTime = Integer.parseInt(args[2]);
+                    return true;
                 }
+                return false;
+            case "swap":
+                this.time = 0;
                 return true;
             case "start":
+                if (players.size() < 2) {
+                    sendErr(sender, "Must have at least two players to start.");
+                    return false;
+                }
                 this.active = true;
                 ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
                 Scoreboard board = scoreboardManager.getNewScoreboard();
@@ -131,19 +139,24 @@ public class DeathSwapGame {
                     public void run() {
                         Score s = objective.getScore("timer");
                         time --;
+
                         if (time < 0) {
                             time = swapTime;
                             for (int i = 0; i < targets.length; i ++) {
                                 oldTargets[i] = targets[i];
                             }
-                            s.setScore(time);
                             for (int i = 0; i < targets.length; i +=  2) {
+                                // this could definitely be more efficient lol
                                 if (targets.length %  2 == 1 && i == targets.length - 3) {
                                     Player A = Bukkit.getPlayer(targets[targets.length - 3]);
                                     Player B = Bukkit.getPlayer(targets[targets.length - 2]);
                                     Player C = Bukkit.getPlayer(targets[targets.length - 1]);
+
+                                    assert A != null;
                                     Location LA = A.getLocation();
+                                    assert B != null;
                                     Location LB = B.getLocation();
+                                    assert C != null;
                                     Location LC = C.getLocation();
 
                                     B.teleport(LA);
@@ -153,7 +166,10 @@ public class DeathSwapGame {
                                 }
                                 Player A = Bukkit.getPlayer(targets[i]);
                                 Player B = Bukkit.getPlayer(targets[i + 1]);
+                                // TODO: see if throws assertion error when running
+                                assert A != null;
                                 Location LA = A.getLocation();
+                                assert B != null;
                                 Location LB = B.getLocation();
                                 A.teleport(LB);
                                 B.teleport(LA);
@@ -161,7 +177,7 @@ public class DeathSwapGame {
                             targets = assignTargets(players);
 
                         }
-
+                        s.setScore(time);
 
                     }
                 }, 0L, 20L);

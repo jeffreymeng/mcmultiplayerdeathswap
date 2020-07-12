@@ -11,7 +11,7 @@ public final class DeathListener implements Listener {
     }
 
     @EventHandler
-    public void onLogin(PlayerDeathEvent event) {
+    public void onDeath(PlayerDeathEvent event) {
         game.handleDeath(event.getEntity().getDisplayName());
     }
 }
