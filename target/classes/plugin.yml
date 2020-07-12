@@ -1,0 +1,12 @@
+name: DeathSwap
+version: 1.0
+main: com.jeffkmeng.minecraft.deathswap.DeathSwap
+commands:
+  deathswap:
+    description: Manage the death swap game
+    usage: /deathswap <action> [parameters...]
+    permission: deathswap.manage
+permissions:
+  deathswap.manage:
+    description: Manage death swap
+    default: true
