@@ -91,13 +91,18 @@ public class DeathSwapGame {
                 sender.sendMessage(ChatColor.RED +  "/deathswap players addAll" + ChatColor.GRAY + ": add all players that are online, and remove all offline players");
                 sender.sendMessage(ChatColor.RED +  "/deathswap players list" + ChatColor.GRAY + ": list all players");
                 return true;
+            case "timer":
+                if (args[1] == "set") {
+                    objective.getScore("timer").setScore(Integer.parseInt(args[2]));
+                }
+                return true;
             case "start":
                 this.active = true;
                 ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
                 Scoreboard board = scoreboardManager.getNewScoreboard();
                 scoreboardTeams = new ArrayList<Team>();
 
-
+//
 
                 objective = board.registerNewObjective("points", "dummy", "Points");
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -128,6 +133,10 @@ public class DeathSwapGame {
                         time --;
                         if (time < 0) {
                             time = swapTime;
+                            for (int i = 0; i < targets.length; i ++) {
+                                oldTargets[i] = targets[i];
+                            }
+                            s.setScore(time);
                             for (int i = 0; i < targets.length; i +=  2) {
                                 if (targets.length %  2 == 1 && i == targets.length - 3) {
                                     Player A = Bukkit.getPlayer(targets[targets.length - 3]);
@@ -149,13 +158,10 @@ public class DeathSwapGame {
                                 A.teleport(LB);
                                 B.teleport(LA);
                             }
-                            for (int i = 0; i < targets.length; i ++) {
-                                oldTargets[i] = targets[i];
-                            }
                             targets = assignTargets(players);
 
                         }
-                        s.setScore(time);
+
 
                     }
                 }, 0L, 20L);
