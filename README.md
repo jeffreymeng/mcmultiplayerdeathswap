@@ -1,7 +1,7 @@
 # Multiplayer Death Swap
 This is a spigot plugin for 1.15  that allows  you to play death swap.
-It  utilizes  a scoring system to allow many people to play without being
-boring for those who die.
+It utilizes a scoring system to allow many people to play without the issues of an elimination system.
+If you would like to play it with elimination, it is still possible. Simply remove a player from the game when they lose a point.
 
 ### Install
 Download the jar file from the assets section of the [latest release](https://github.com/jeffreymeng/mcmultiplayerdeathswap/releases).
@@ -16,7 +16,7 @@ It is recommended that you tueb keep inventory on.
 
 ### Using the plugin
 
-`/deathswap help` for help information.
+`/deathswap help` for command information.
 
 `/deathswap players add [playername]`, to add a player.
 `/deathswap players addAll` to add all players.
