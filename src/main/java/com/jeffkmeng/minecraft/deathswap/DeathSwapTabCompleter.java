@@ -18,7 +18,7 @@ public class DeathSwapTabCompleter implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        List<String> cmds = new ArrayList<String>();
+        List<String> cmds = new ArrayList<>();
 
         switch (args.length) {
             case 1:
@@ -28,13 +28,13 @@ public class DeathSwapTabCompleter implements TabCompleter {
                 cmds.add("stop");
                 cmds.add("timer");
                 cmds.add("swap");
-                return StringUtil.copyPartialMatches(args[0], cmds, new ArrayList<String>());
+                return StringUtil.copyPartialMatches(args[0], cmds, new ArrayList<>());
 
             case 2:
                 switch (args[0].toLowerCase()) {
                     case "timer":
                         cmds.add("set");
-                        return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<String>());
+                        return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<>());
                     case "players":
                         cmds.add("help");
                         cmds.add("add");
@@ -42,7 +42,7 @@ public class DeathSwapTabCompleter implements TabCompleter {
                         cmds.add("remove");
                         cmds.add("removeAll");
                         cmds.add("list");
-                        return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<String>());
+                        return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<>());
                 }
             case 3:
                 if (args[0].toLowerCase().equals("players")) {
@@ -50,7 +50,7 @@ public class DeathSwapTabCompleter implements TabCompleter {
                         case "add":
                         case "remove":
                             for (Player p : getServer().getOnlinePlayers()) cmds.add(p.getName());
-                            return StringUtil.copyPartialMatches(args[1], cmds, new ArrayList<String>());
+                            return StringUtil.copyPartialMatches(args[2], cmds, new ArrayList<>());
                     }
                 }
         }

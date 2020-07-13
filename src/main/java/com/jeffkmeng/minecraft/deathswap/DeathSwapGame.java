@@ -252,7 +252,7 @@ public class DeathSwapGame {
                 String subAction = args[1].toLowerCase();
                 switch (subAction) {
                     case "help":
-                        sender.sendMessage("Avaliable player commands (note: edits to the player list will not take effect until the next time /deathswap start is called");
+                        sender.sendMessage("Avaliable player commands");
                         sender.sendMessage(ChatColor.RED +  "/deathswap players help" + ChatColor.GRAY + ": display this help menu");
                         sender.sendMessage(ChatColor.RED +  "/deathswap players add <playerName>" + ChatColor.GRAY + ": add a player");
                         sender.sendMessage(ChatColor.RED +  "/deathswap players addAll" + ChatColor.GRAY + ": add all players that are online, and remove all offline players");

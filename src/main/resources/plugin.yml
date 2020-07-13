@@ -8,5 +8,5 @@ commands:
     permission: deathswap.manage
 permissions:
   deathswap.manage:
-    description: Manage death swap
-    default: true
+    description: Start, stop, and manage death swap
+    default: OP
