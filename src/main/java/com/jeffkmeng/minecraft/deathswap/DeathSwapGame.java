@@ -169,9 +169,9 @@ public class DeathSwapGame {
                         if (time <= 0) {
                             time = swapTime;
                             oldTargets = new String[targets.length];
+                            gotPointThisRound = new boolean[targets.length];
                             for (int i = 0; i < targets.length; i ++) {
                                 oldTargets[i] = targets[i];
-                                gotPointThisRound[i] = false;
                             }
 
                             for (int i = 0; i < targets.length; i +=  2) {

@@ -6,7 +6,7 @@
 
     <groupId>com.jeffkmeng.minecraft</groupId>
     <artifactId>deathswap</artifactId>
-    <version>1.0.0rc1</version>
+    <version>1.0.0rc2</version>
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
